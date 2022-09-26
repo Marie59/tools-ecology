@@ -221,7 +221,7 @@ ivr_val_qu_ <- ivr_naomit
 for (i in 1:nrow(ivr_naomit)) {
   (bm <- sum(ivr_naomit$Nb.Blocs.Non.Retournes[i], ivr_naomit$Nb.Blocs.Retournes[i]))
   (ivr_val_qu_$blocs.retournes.fr.[i] <- (ivr_naomit$Nb.Blocs.Retournes[i] / bm) * 100)
-  (ivr_val_qu_$blocs.non.retournes.fr.[i]  <- (ivr_naomit$Nb.Blocs.Non.Retournes[i] / bm) * 100) 
+  (ivr_val_qu_$blocs.non.retournes.fr.[i]  <- (ivr_naomit$Nb.Blocs.Non.Retournes[i] / bm) * 100)
 }
 
 rm(bm, i)
@@ -316,7 +316,7 @@ for (i in c(1:length(unique(ivr_val_qu_stat_$Site)))) {
   xmax_ <- as.Date(ifelse(max(ivr_val_eg$Annee) <= 2017, "2018-01-01", "2022-01-01"), origin = "1970-01-01")
 
   png(paste0("new_ivr_", unique(ivr_val_eg$Site), ".png"))
-  plot(ivr_val_eg$Date, ivr_val_eg$fr.r.moy / 20, xlim = c(xmin_, xmax_), ylim = c(0,5), pch = 19, main = unique(ivr_val_eg$Site), xlab = "", ylab = "", type = "n", axes = FALSE)
+  plot(ivr_val_eg$Date, ivr_val_eg$fr.r.moy / 20, xlim = c(xmin_, xmax_), ylim = c(0, 5), pch = 19, main = unique(ivr_val_eg$Site), xlab = "", ylab = "", type = "n", axes = FALSE)
 
   rect(as.Date("2013-01-01", origin = "1970-01-01"), 85 / 20, as.Date("2023-01-01", origin = "1970-01-01"), 5.5, col = "red", border = NA)
   rect(as.Date("2013-01-01", origin = "1970-01-01"), 65 / 20, as.Date("2023-01-01", origin = "1970-01-01"), 85 / 20, col = "orange1", border = NA)
@@ -334,3 +334,6 @@ for (i in c(1:length(unique(ivr_val_qu_stat_$Site)))) {
 
   rm(ivr_val_eg, i, xmax_, xmin_)
 }
+
+report <- args[5]
+loop_file <- source(args[6])
