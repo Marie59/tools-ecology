@@ -32,6 +32,7 @@ if (length(args) < 1) {
     input_data2 <- args[2]
     fiche_val <- args[3]
     fiche_term <- args[4]
+    #choice <- as.character(args[5])
 }
 
 ## load ivr data
@@ -257,7 +258,7 @@ rm(i, ivr_)
 
 # reorder variables for logical purpose
 ivr_val_qu_ <- ivr_val_qu_[, c(1:56, 58, 57, 59)]
-ivr_test_full <- ivr_val_qu_
+indic_full <- ivr_val_qu_
 saveRDS(ivr_val_qu_, "ivr_val_qu.RDS")
 
 rm(ivr_naomit)
@@ -272,7 +273,7 @@ ivr_val_qu_stat_ <- tibble::add_column(ivr_val_qu_stat_, Date, .after = "Site_bi
 rm(Date)
 
 ivr_val_qu_stat_ <- as.data.frame(ivr_val_qu_stat_)
-ivr_test <- ivr_val_qu_stat_
+indic <- ivr_val_qu_stat_
 saveRDS(ivr_val_qu_stat_, "ivr_val_qu_stat.RDS")
 
 

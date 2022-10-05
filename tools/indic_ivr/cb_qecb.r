@@ -194,7 +194,7 @@ qecb <- qecb[, c(72:107, 1:71)]
 saveRDS(qecb, "qecb.RDS")
 
 
-## qecb df preparation prior qecb calculation 
+## qecb df preparation prior qecb calculation
 
 # Several issues to solve in the df first
 
@@ -213,7 +213,7 @@ qecbnew <- qecb
 
 # df with list object nb and corresponding site_year_month_day value to solve for loop issues
 
-df_list.loop <- data.frame("site_year_month_day" = unique(qecbnew$site_year_month_day),
+df_list_loop <- data.frame("site_year_month_day" = unique(qecbnew$site_year_month_day),
      "loop nb" = c(1:length(unique(qecbnew$site_year_month_day))))
 
 # dplyr::filter for df that makes problem, then eventually correct in the dataframe for wrong coding; brackets (xx) for nb because will change when qecb df_ enlarged.
@@ -255,16 +255,16 @@ qecbnew <- qecbnew %>% dplyr::filter(!(ID.Fiche == "2018-09-10-GDMO-CDB-001" & N
 
 # Few sites to remove prior running the for loop because it was not just a encoding mistake for one data, but a globally wroing coding for the site + date survey.
 
-qecbnew  %>% dplyr::filter(site_year_month_day == "FINS_StNicolasGlenan.2016.04.08") -> qecb_i # no bloc fixe !
+qecb_i <- qecbnew  %>% dplyr::filter(site_year_month_day == "FINS_StNicolasGlenan.2016.04.08") # no bloc fixe !
 qecbnew <- qecbnew  %>% dplyr::filter(site_year_month_day != "FINS_StNicolasGlenan.2016.04.08")
-qecbnew  %>% dplyr::filter(site_year_month_day == "GDMO_Locmariaquer.2019.09.30") -> qecb_i # most faces of blocs mobiles do not correspond to each other; only 3 over 10 boulder have data for both face supérieure and face inférieure
+qecb_i <- qecbnew  %>% dplyr::filter(site_year_month_day == "GDMO_Locmariaquer.2019.09.30") # most faces of blocs mobiles do not correspond to each other; only 3 over 10 boulder have data for both face supérieure and face inférieure
 qecbnew <- qecbnew  %>% dplyr::filter(site_year_month_day != "GDMO_Locmariaquer.2019.09.30")
-rm(df_list.loop, qecb_i)
+rm(df_list_loop, qecb_i)
 
 
 # check for species with count within sub-0.1m^2-quadrat (i.e. reduced size quadrat compare to most organisms on boulder to count them, because abundant ; then some extrapolation)
 
-# first for Spirobranchus 
+# first for Spirobranchus
 
 qecbnew$Nb.Spirobranchus.lamarckii.total.ini <- qecbnew$Nb.Spirobranchus.lamarckii.total
 qecbnew$Nb.Spirobranchus.lamarckii.total <- as.character(qecbnew$Nb.Spirobranchus.lamarckii.total)
@@ -278,22 +278,22 @@ nrow(dplyr::filter(qecbnew, qecbnew$Nb.Spirobranchus.lamarckii.total %in% c(NA, 
 
 qecbnew_spirobranchus <- (dplyr::filter(qecbnew, Nb.Spirobranchus.lamarckii.total %in% c(NA, "NaN", "Inf", "-Inf")))
 qecbnew_spirobranchus[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")] <- sapply(qecbnew_spirobranchus[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")], as.character)
-(Spirobranchus.data <- subset(qecbnew_spirobranchus, !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.1B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.2B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.3B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.4B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.5B))[, c("site_year_month_day", "Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total")])
-unique(Spirobranchus.data$site_year_month_day)
+(spirobranchus_data <- subset(qecbnew_spirobranchus, !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.1B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.2B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.3B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.4B) || !is.na(qecbnew_spirobranchus$Nb.Spirobranchus.lamarckii.5B))[, c("site_year_month_day", "Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total")])
+unique(spirobranchus_data$site_year_month_day)
 
-Quemenes <- dplyr::filter(qecbnew, Site == "FINS_Quemenes")
-Quemenes <- dplyr::arrange(Quemenes, date_fiche)
-# for Quemenes, issue because for sampling date "FINS_Quemenes.2015.09.30" the 5 counts of Spirobranchus were encoded in 1B instead of total !!! I noticed this issue when mining data (see below), therefore I corrected before running below script for Spirobranchus. 
+quemenes <- dplyr::filter(qecbnew, Site == "FINS_Quemenes")
+quemenes <- dplyr::arrange(quemenes, date_fiche)
+# for Quemenes, issue because for sampling date "FINS_Quemenes.2015.09.30" the 5 counts of Spirobranchus were encoded in 1B instead of total !!! I noticed this issue when mining data (see below), therefore I corrected before running below script for Spirobranchus.
 qecbnew$Nb.Spirobranchus.lamarckii.total <- ifelse(qecbnew$site_year_month_day == "FINS_Quemenes.2015.09.30" & is.na(qecbnew$Nb.Spirobranchus.lamarckii.total), qecbnew$Nb.Spirobranchus.lamarckii.1B, qecbnew$Nb.Spirobranchus.lamarckii.total)
-(Quemenes <- dplyr::filter(qecbnew, site_year_month_day == "FINS_Quemenes.2015.09.30")[, c("site_year_month_day", "Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total")])
-rm(Quemenes)
+(quemenes <- dplyr::filter(qecbnew, site_year_month_day == "FINS_Quemenes.2015.09.30")[, c("site_year_month_day", "Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total")])
+rm(quemenes)
 
-SeinKilaourou <- dplyr::filter(qecbnew, Site == "FINS_SeinKilaourou")
-SeinKilaourou <- dplyr::arrange(SeinKilaourou, date_fiche)
+seinkilaourou <- dplyr::filter(qecbnew, Site == "FINS_SeinKilaourou")
+seinkilaourou <- dplyr::arrange(seinkilaourou, date_fiche)
 # same issue with SeinKilaourou
 qecbnew$Nb.Spirobranchus.lamarckii.total <- ifelse(qecbnew$site_year_month_day == "FINS_SeinKilaourou.2015.04.21" & is.na(qecbnew$Nb.Spirobranchus.lamarckii.total), qecbnew$Nb.Spirobranchus.lamarckii.1B, qecbnew$Nb.Spirobranchus.lamarckii.total)
-(SeinKilaourou <- dplyr::filter(qecbnew, site_year_month_day == "FINS_SeinKilaourou.2015.04.21")[, c("site_year_month_day", "Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total")])
-rm(SeinKilaourou)
+(seinkilaourou <- dplyr::filter(qecbnew, site_year_month_day == "FINS_SeinKilaourou.2015.04.21")[, c("site_year_month_day", "Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total")])
+rm(seinkilaourou)
 
 # some more issues however with "x100"count data
 
@@ -305,17 +305,17 @@ Spirobranchus$mean.x.100 <- unlist(Spirobranchus$mean.x.100)
 Spirobranchus$Nb.Spirobranchus.lamarckii.total <- as.numeric(Spirobranchus$Nb.Spirobranchus.lamarckii.total)
 for (i in c(1:nrow(Spirobranchus))) {
   Spirobranchus$diff[[i]] <- Spirobranchus[i, "Nb.Spirobranchus.lamarckii.total"] - Spirobranchus[i, "mean.x.100"]
-} 
+}
 Spirobranchus$diff <- abs(as.integer(Spirobranchus$diff))
 Spirobranchus <- dplyr::arrange(Spirobranchus, desc(diff), mean.x.100)
 Spirobranchus <- dplyr::arrange(dplyr::filter(Spirobranchus, diff != 0 & mean.x.100 != 0), desc(diff))
 
 # check it all in the qecbnew df
 
-for (i in c(1:nrow(qecbnew))) { 
-  qecbnew$mean.x.100[[i]] <- 
-    #ifelse(qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"), 
-    sum(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")], na.rm = TRUE ) / sum(!is.na(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")]))*100
+for (i in c(1:nrow(qecbnew))) {
+  qecbnew$mean.x.100[[i]] <-
+    #ifelse(qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"),
+    sum(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")], na.rm = TRUE) / sum(!is.na(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")])) * 100
   #, qecbnew$Nb.Spirobranchus.lamarckii.total[[i]]) 
 } # sum of only NAs/0 = NaN; so replace NaN by Na
 qecbnew$mean.x.100 <- as.character(qecbnew$mean.x.100)
@@ -329,27 +329,27 @@ nrow(subset(qecbnew, is.na(qecbnew$mean.x.100)))
 qecbnew$mean.x.100 <- as.integer(qecbnew$mean.x.100)
 
 qecbnew$Nb.Spirobranchus.lamarckii.total <- as.integer(qecbnew$Nb.Spirobranchus.lamarckii.total)
-unique(qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$mean.x.100) 
+unique(qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$mean.x.100)
 table(qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$mean.x.100)
 qecbnew$Nb.Spirobranchus.lamarckii.total.diff <- abs((qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$mean.x.100))
-Spirobranchus.diff <- qecbnew[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total", "Nb.Spirobranchus.lamarckii.total.ini", "mean.x.100", "Nb.Spirobranchus.lamarckii.total.diff")]
-Spirobranchus.diff <- dplyr::arrange(Spirobranchus.diff, desc(Nb.Spirobranchus.lamarckii.total.diff), mean.x.100)
-Spirobranchus.diff <- dplyr::arrange(dplyr::filter(Spirobranchus.diff, Nb.Spirobranchus.lamarckii.total.diff != 0 & mean.x.100 != 0), desc(Nb.Spirobranchus.lamarckii.total.diff))
+spirobranchus_diff <- qecbnew[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total", "Nb.Spirobranchus.lamarckii.total.ini", "mean.x.100", "Nb.Spirobranchus.lamarckii.total.diff")]
+spirobranchus_diff <- dplyr::arrange(spirobranchus_diff, desc(Nb.Spirobranchus.lamarckii.total.diff), mean.x.100)
+spirobranchus_diff <- dplyr::arrange(dplyr::filter(spirobranchus_diff, Nb.Spirobranchus.lamarckii.total.diff != 0 & mean.x.100 != 0), desc(Nb.Spirobranchus.lamarckii.total.diff))
 
 qecbnew$Nb.Spirobranchus.lamarckii.total <- ifelse(qecbnew$Nb.Spirobranchus.lamarckii.total.diff != 0 & qecbnew$mean.x.100 != 0, qecbnew$mean.x.100, qecbnew$Nb.Spirobranchus.lamarckii.total)
-Spirobranchus.diff <- qecbnew[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total", "Nb.Spirobranchus.lamarckii.total.ini", "mean.x.100", "Nb.Spirobranchus.lamarckii.total.diff")]
-Spirobranchus.diff$Nb.Spirobranchus.lamarckii.total.diff <- abs(as.integer(Spirobranchus.diff$Nb.Spirobranchus.lamarckii.total.diff))
-Spirobranchus.diff <- dplyr::arrange(Spirobranchus.diff, desc(Nb.Spirobranchus.lamarckii.total.diff), mean.x.100)
-Spirobranchus.diff <- dplyr::arrange(dplyr::filter(Spirobranchus.diff, Nb.Spirobranchus.lamarckii.total.diff != 0 & mean.x.100 != 0), desc(Nb.Spirobranchus.lamarckii.total.diff))
+spirobranchus_diff <- qecbnew[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total", "Nb.Spirobranchus.lamarckii.total.ini", "mean.x.100", "Nb.Spirobranchus.lamarckii.total.diff")]
+spirobranchus_diff$Nb.Spirobranchus.lamarckii.total.diff <- abs(as.integer(spirobranchus_diff$Nb.Spirobranchus.lamarckii.total.diff))
+spirobranchus_diff <- dplyr::arrange(spirobranchus_diff, desc(Nb.Spirobranchus.lamarckii.total.diff), mean.x.100)
+spirobranchus_diff <- dplyr::arrange(dplyr::filter(spirobranchus_diff, Nb.Spirobranchus.lamarckii.total.diff != 0 & mean.x.100 != 0), desc(Nb.Spirobranchus.lamarckii.total.diff))
 # ok, change made when data x 100 was not correct.
 
 # finally, change NA by mean.x100 for Spirobranchus total
 qecbnew$Nb.Spirobranchus.lamarckii.total <- as.character(qecbnew$Nb.Spirobranchus.lamarckii.total)
-for (i in c(1:nrow(qecbnew))) { 
-  qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] <- ifelse(qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"), sum(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")], na.rm = TRUE) / sum(!is.na(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")])) * 100, qecbnew$Nb.Spirobranchus.lamarckii.total[[i]]) 
+for (i in c(1:nrow(qecbnew))) {
+  qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] <- ifelse(qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"), sum(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")], na.rm = TRUE) / sum(!is.na(qecbnew[i, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B")])) * 100, qecbnew$Nb.Spirobranchus.lamarckii.total[[i]])
 } # sum of only NAs/0 = NaN; so replace NaN by Na
 
-sort(dplyr::filter(qecbnew, paste0(qecbnew$id_qecb, "_", qecbnew$site_year_month_day, "_", qecbnew$Type.Bloc, "_", qecbnew$Numéro.Bloc.échantillon, "_", qecbnew$Face) %in% paste0(qecbnew_spirobranchus$id_qecb, "_", qecbnew_spirobranchus$site_year_month_day, "_", qecbnew_spirobranchus$Type.Bloc, "_", qecbnew_spirobranchus$Numéro.Bloc.échantillon, "_", qecbnew_spirobranchus$Face))[,"Nb.Spirobranchus.lamarckii.total"])
+sort(dplyr::filter(qecbnew, paste0(qecbnew$id_qecb, "_", qecbnew$site_year_month_day, "_", qecbnew$Type.Bloc, "_", qecbnew$Numéro.Bloc.échantillon, "_", qecbnew$Face) %in% paste0(qecbnew_spirobranchus$id_qecb, "_", qecbnew_spirobranchus$site_year_month_day, "_", qecbnew_spirobranchus$Type.Bloc, "_", qecbnew_spirobranchus$Numéro.Bloc.échantillon, "_", qecbnew_spirobranchus$Face))[, "Nb.Spirobranchus.lamarckii.total"])
 
 for (i in c(1:nrow(qecbnew))) {
   qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] <- ifelse(qecbnew$Nb.Spirobranchus.lamarckii.total[[i]] == "NaN", NA, qecbnew$Nb.Spirobranchus.lamarckii.total[[i]])
@@ -357,12 +357,12 @@ for (i in c(1:nrow(qecbnew))) {
 nrow(subset(qecbnew, is.na(qecbnew$Nb.Spirobranchus.lamarckii.total)))
 qecbnew$Nb.Spirobranchus.lamarckii.total <- as.integer(qecbnew$Nb.Spirobranchus.lamarckii.total)
 
-unique(qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$Nb.Spirobranchus.lamarckii.total.ini) 
+unique(qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$Nb.Spirobranchus.lamarckii.total.ini)
 table(qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$Nb.Spirobranchus.lamarckii.total.ini)
 qecbnew$Nb.Spirobranchus.lamarckii.total.diff <- abs(qecbnew$Nb.Spirobranchus.lamarckii.total - qecbnew$Nb.Spirobranchus.lamarckii.total.ini)
-Spirobranchus.diff <- qecbnew[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total", "Nb.Spirobranchus.lamarckii.total.ini", "mean.x.100", "Nb.Spirobranchus.lamarckii.total.diff")]
-Spirobranchus.diff <- dplyr::arrange(Spirobranchus.diff, desc(Nb.Spirobranchus.lamarckii.total.diff), mean.x.100)
-Spirobranchus.diff <- dplyr::arrange(dplyr::filter(Spirobranchus.diff, Nb.Spirobranchus.lamarckii.total.diff != 0 & mean.x.100 != 0), desc(Nb.Spirobranchus.lamarckii.total.diff))
+spirobranchus_diff <- qecbnew[, c("Nb.Spirobranchus.lamarckii.1B", "Nb.Spirobranchus.lamarckii.2B", "Nb.Spirobranchus.lamarckii.3B", "Nb.Spirobranchus.lamarckii.4B", "Nb.Spirobranchus.lamarckii.5B", "Nb.Spirobranchus.lamarckii.total", "Nb.Spirobranchus.lamarckii.total.ini", "mean.x.100", "Nb.Spirobranchus.lamarckii.total.diff")]
+spirobranchus_diff <- dplyr::arrange(spirobranchus_diff, desc(Nb.Spirobranchus.lamarckii.total.diff), mean.x.100)
+spirobranchus_diff <- dplyr::arrange(dplyr::filter(spirobranchus_diff, Nb.Spirobranchus.lamarckii.total.diff != 0 & mean.x.100 != 0), desc(Nb.Spirobranchus.lamarckii.total.diff))
 table(qecbnew$Nb.Spirobranchus.lamarckii.total.diff)
 length(na.omit(qecbnew$Nb.Spirobranchus.lamarckii.total))
 sum(is.na(qecbnew$Nb.Spirobranchus.lamarckii.total))
@@ -370,7 +370,7 @@ length(na.omit(qecbnew$Nb.Spirobranchus.lamarckii.total)) + sum(is.na(qecbnew$Nb
 
 qecbnew <- subset(qecbnew, select = -c(Nb.Spirobranchus.lamarckii.total.ini, mean.x.100, Nb.Spirobranchus.lamarckii.total.diff))
 
-rm(qecbnew_spirobranchus, Spirobranchus, Spirobranchus.data, Spirobranchus.diff)
+rm(qecbnew_spirobranchus, Spirobranchus, spirobranchus_data, spirobranchus_diff)
 
 # do the same for spirorbis
 
@@ -387,22 +387,22 @@ nrow(dplyr::filter(qecbnew, qecbnew$Nb.spirorbis.total %in% c(NA, "NaN", "Inf", 
 
 qecbnew_spirorbis <- (dplyr::filter(qecbnew, Nb.spirorbis.total %in% c(NA, "NaN", "Inf", "-Inf")))
 qecbnew_spirorbis[, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")] <- sapply(qecbnew_spirorbis[, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")], as.character)
-(spirorbis.data <- subset(qecbnew_spirorbis, !is.na(qecbnew_spirorbis$Nb.spirorbis.1A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.2A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.3A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.4A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.5A))[, c("site_year_month_day", "Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A", "Nb.spirorbis.total")])
-unique(spirorbis.data$site_year_month_day)
+(spirobranchus_data <- subset(qecbnew_spirorbis, !is.na(qecbnew_spirorbis$Nb.spirorbis.1A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.2A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.3A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.4A) || !is.na(qecbnew_spirorbis$Nb.spirorbis.5A))[, c("site_year_month_day", "Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A", "Nb.spirorbis.total")])
+unique(spirobranchus_data$site_year_month_day)
 
-# In contrast to Spirobranchus data, no encoding issues for spirorbis data, cfr when sub-quadrat 1A-5A are ALL encoded, NA for total. 
+# In contrast to Spirobranchus data, no encoding issues for spirorbis data, cfr when sub-quadrat 1A-5A are ALL encoded, NA for total.
 
 # some more issues however with "x200"count data
 
 spirorbis <- subset(qecbnew, !is.na(qecbnew$Nb.spirorbis.1A) & !is.na(qecbnew$Nb.spirorbis.2A) & !is.na(qecbnew$Nb.spirorbis.3A) & !is.na(qecbnew$Nb.spirorbis.4A) & !is.na(qecbnew$Nb.spirorbis.5A) & !is.na(qecbnew$Nb.spirorbis.total))[, c("site_year_month_day", "Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A", "Nb.spirorbis.total")]
 for (i in c(1:nrow(spirorbis))) {
     spirorbis$mean.x.200[[i]] <- sum(spirorbis[i, c(2:6)], na.rm = TRUE) / sum(!is.na(spirorbis[i, c(2:6)])) * 200
-} 
+}
 spirorbis$mean.x.200 <- unlist(spirorbis$mean.x.200)
 spirorbis$Nb.spirorbis.total <- as.numeric(spirorbis$Nb.spirorbis.total)
 for (i in c(1:nrow(spirorbis))) {
   spirorbis$diff[[i]] <- spirorbis[i, "Nb.spirorbis.total"] - spirorbis[i, "mean.x.200"]
-} 
+}
 spirorbis$diff <- abs(as.integer(spirorbis$diff))
 spirorbis <- dplyr::arrange(spirorbis, desc(diff), mean.x.200)
 (GONB_IlotStMichel.2015.04.18 <- dplyr::filter(spirorbis, site_year_month_day == "GONB_IlotStMichel.2015.04.18"))
@@ -411,11 +411,11 @@ spirorbis <- dplyr::arrange(dplyr::filter(spirorbis, diff != 0 & mean.x.200 != 0
 
 # check it all in the qecbnew df
 
-for (i in c(1:nrow(qecbnew))) { 
-    qecbnew$mean.x.200[[i]] <- 
-      #ifelse(qecbnew$Nb.spirorbis.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"), 
+for (i in c(1:nrow(qecbnew))) {
+    qecbnew$mean.x.200[[i]] <-
+      #ifelse(qecbnew$Nb.spirorbis.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"),
       sum(qecbnew[i, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")], na.rm = TRUE) / sum(!is.na(qecbnew[i, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")])) * 200
-    #, qecbnew$Nb.spirorbis.total[[i]]) 
+    #, qecbnew$Nb.spirorbis.total[[i]])
 } # sum of only NAs/0 = NaN; so replace NaN by Na
 qecbnew$mean.x.200 <- as.character(qecbnew$mean.x.200)
 
@@ -428,7 +428,7 @@ nrow(subset(qecbnew, is.na(qecbnew$mean.x.200)))
 qecbnew$mean.x.200 <- as.integer(qecbnew$mean.x.200)
 
 qecbnew$Nb.spirorbis.total <- as.integer(qecbnew$Nb.spirorbis.total)
-unique(qecbnew$Nb.spirorbis.total - qecbnew$mean.x.200) 
+unique(qecbnew$Nb.spirorbis.total - qecbnew$mean.x.200)
 table(qecbnew$Nb.spirorbis.total - qecbnew$mean.x.200)
 qecbnew$Nb.spirorbis.total.diff <- abs((qecbnew$Nb.spirorbis.total - qecbnew$mean.x.200))
 spirorbis_diff <- qecbnew[, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A", "Nb.spirorbis.total", "Nb.spirorbis.total.ini", "mean.x.200", "Nb.spirorbis.total.diff")]
@@ -444,8 +444,8 @@ spirorbis_diff <- dplyr::arrange(dplyr::filter(spirorbis_diff, Nb.spirorbis.tota
 
 # finally, change NA by mean.x200 for spirorbis total
 qecbnew$Nb.spirorbis.total <- as.character(qecbnew$Nb.spirorbis.total)
-for (i in c(1:nrow(qecbnew))) { 
-  qecbnew$Nb.spirorbis.total[[i]] <- ifelse(qecbnew$Nb.spirorbis.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"), sum(qecbnew[i, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")], na.rm = TRUE) / sum(!is.na(qecbnew[i, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")])) * 200, qecbnew$Nb.spirorbis.total[[i]]) 
+for (i in c(1:nrow(qecbnew))) {
+  qecbnew$Nb.spirorbis.total[[i]] <- ifelse(qecbnew$Nb.spirorbis.total[[i]] %in% c(NA, "NaN", "Inf", "-Inf"), sum(qecbnew[i, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")], na.rm = TRUE) / sum(!is.na(qecbnew[i, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A")])) * 200, qecbnew$Nb.spirorbis.total[[i]])
 } # sum of only NAs/0 = NaN; so replace NaN by Na
 
 sort(dplyr::filter(qecbnew, paste0(qecbnew$id_qecb, "_", qecbnew$site_year_month_day, "_", qecbnew$Type.Bloc, "_", qecbnew$Numéro.Bloc.échantillon, "_", qecbnew$Face) %in% paste0(qecbnew_spirorbis$id_qecb, "_", qecbnew_spirorbis$site_year_month_day, "_", qecbnew_spirorbis$Type.Bloc, "_", qecbnew_spirorbis$Numéro.Bloc.échantillon, "_", qecbnew_spirorbis$Face))[, "Nb.spirorbis.total"])
@@ -456,7 +456,7 @@ for (i in c(1:nrow(qecbnew))) {
 nrow(subset(qecbnew, is.na(qecbnew$Nb.spirorbis.total)))
 qecbnew$Nb.spirorbis.total <- as.integer(qecbnew$Nb.spirorbis.total)
 
-unique(qecbnew$Nb.spirorbis.total - qecbnew$Nb.spirorbis.total.ini) 
+unique(qecbnew$Nb.spirorbis.total - qecbnew$Nb.spirorbis.total.ini)
 table(qecbnew$Nb.spirorbis.total - qecbnew$Nb.spirorbis.total.ini)
 qecbnew$Nb.spirorbis.total.diff <- abs(qecbnew$Nb.spirorbis.total - qecbnew$Nb.spirorbis.total.ini)
 spirorbis_diff <- qecbnew[, c("Nb.spirorbis.1A", "Nb.spirorbis.2A", "Nb.spirorbis.3A", "Nb.spirorbis.4A", "Nb.spirorbis.5A", "Nb.spirorbis.total", "Nb.spirorbis.total.ini", "mean.x.200", "Nb.spirorbis.total.diff")]
@@ -465,89 +465,89 @@ spirorbis_diff <- dplyr::arrange(dplyr::filter(spirorbis_diff, Nb.spirorbis.tota
 table(qecbnew$Nb.spirorbis.total.diff)
 length(na.omit(qecbnew$Nb.spirorbis.total))
 sum(is.na(qecbnew$Nb.spirorbis.total))
-length(na.omit(qecbnew$Nb.spirorbis.total))+sum(is.na(qecbnew$Nb.spirorbis.total))
-      
+length(na.omit(qecbnew$Nb.spirorbis.total)) + sum(is.na(qecbnew$Nb.spirorbis.total))
+
 qecbnew <- subset(qecbnew, select = -c(Nb.spirorbis.total.ini, mean.x.200, Nb.spirorbis.total.diff))
 
-rm(qecbnew_spirorbis, spirorbis, spirorbis.data, spirorbis_diff, i)
+rm(qecbnew_spirorbis, spirorbis, spirobranchus_data, spirorbis_diff, i)
 
 
 # dplyr::filter for abnormal data, based on histogram distribution of data
 
 qecbnewhist_ <- qecbnew
-ylab_ = "fréquence"
+ylab_ <- "fréquence"
 
 hist_ <- qecbnewhist_[, c(
-  "Type.Bloc"                              ,
-  "Face"                                   ,
-  "X..algues.brunes"                       ,            
-  "Strate.algues.brunes"                   ,          
-  "X..algues.rouges"                       ,           
-  "Strate.algues.rouges"                   ,           
-  "X..algues.vertes"                       ,            
-  "Strate.algues.vertes"                   ,            
-  "X..Cladophora"                          ,           
-  "X..Lithophyllum"                        ,           
-  "X..Recouvrement.Sediment"               ,           
-  #"Type.Sediment"                          ,           
-  "X..Roche.Nue"                           , 
-  "Nb.Littorina.obtusata"                  ,           
-  "Nb.Gibbula.cineraria"                   ,           
-  "Nb.Gibbula.pennanti"                    ,           
-  "Nb.Gibbula.umbilicalis"                 ,           
-  "Nb.Phallusia.mamillata"                 ,           
-  "Nb.Tethya.aurantium"                    ,           
-  #"Nb.Spirobranchus.lamarckii.1B"          ,           
-  #"Nb.Spirobranchus.lamarckii.2B"          ,           
-  #"Nb.Spirobranchus.lamarckii.3B"          ,           
-  #"Nb.Spirobranchus.lamarckii.4B"          ,           
-  #"Nb.Spirobranchus.lamarckii.5B"          ,           
-  "Nb.Spirobranchus.lamarckii.total"       ,           
-  #"Nb.spirorbis.1A"                        ,           
-  #"Nb.spirorbis.2A"                        ,           
-  #"Nb.spirorbis.3A"                        ,           
-  #"Nb.spirorbis.4A"                        ,           
-  #"Nb.spirorbis.5A"                        ,           
-  "Nb.spirorbis.total"                     ,           
-  "Nb.Crassostrea.gigas"                   ,           
-  "Nb.Ostrea.edulis"                       ,           
-  "X..Mytilus.sp."                         ,           
-  "X..Hermelles"                           ,           
-  "X..Hydraires"                           ,           
-  "X..Eponges"                             ,           
-  "X..Ascidies.Coloniales"                 ,           
-  "X..Ascidies.Solitaires"                 ,           
-  "X..Bryozoaires.Dresses"                 ,           
-  "X..Balanes.Vivantes"                    ,           
-  #"Commentaires.Avant"                     ,            
-  "X..Surface.Accolement"                  , 
-  #"Type.sustrat.observé"                   ,           
-  #"Commentaires"                           ,            
-  "Nb.Cancer.pagurus..Tourteau."           ,           
-  "Nb.Necora.puber..Etrille."              ,           
-  "Nb.Carcinus.maenas..Crabe.vert."        ,           
-  "Nb.Nucella.lapilus..Pourpre."           ,           
-  "Nb.Eriphia.verrucosa..Crabe.verruqueux.",           
-  "Nb.Octopus.vulgaris..Poulpe."           ,           
-  "Nb.Galathea..Galathées."                ,          
-  "Nb.Paracentrotus.lividus..Oursin."      ,            
-  "Nb.Lophozozymus.incisus..ancien.Xantho.incisus."         ,
-  "Nb.Palaemon.sp..Crevette.bouquet.ou.crevette.rose."      ,
-  "Nb.Haliotis.tuberculata..Ormeau."                        ,
-  "Nb.Stramonita.haemastoma..Pourpre.bouche.de.sang."       ,
-  "Nb.Littorina.littorea..Bigorneau."      ,           
-  "Nb.Xantho.pilipes..Xanthe.poilu."       ,           
+  "Type.Bloc",
+  "Face",
+  "X..algues.brunes",
+  "Strate.algues.brunes",          
+  "X..algues.rouges",
+  "Strate.algues.rouges",
+  "X..algues.vertes",
+  "Strate.algues.vertes",
+  "X..Cladophora",
+  "X..Lithophyllum",
+  "X..Recouvrement.Sediment",
+  #"Type.Sediment"                          ,
+  "X..Roche.Nue",
+  "Nb.Littorina.obtusata",
+  "Nb.Gibbula.cineraria",
+  "Nb.Gibbula.pennanti",
+  "Nb.Gibbula.umbilicalis",
+  "Nb.Phallusia.mamillata",
+  "Nb.Tethya.aurantium",
+  #"Nb.Spirobranchus.lamarckii.1B"          ,
+  #"Nb.Spirobranchus.lamarckii.2B"          ,
+  #"Nb.Spirobranchus.lamarckii.3B"          ,
+  #"Nb.Spirobranchus.lamarckii.4B"          ,
+  #"Nb.Spirobranchus.lamarckii.5B"          ,
+  "Nb.Spirobranchus.lamarckii.total",
+  #"Nb.spirorbis.1A"                        ,
+  #"Nb.spirorbis.2A"                        ,
+  #"Nb.spirorbis.3A"                        ,
+  #"Nb.spirorbis.4A"                        ,
+  #"Nb.spirorbis.5A"                        ,
+  "Nb.spirorbis.total",
+  "Nb.Crassostrea.gigas",
+  "Nb.Ostrea.edulis",
+  "X..Mytilus.sp.",
+  "X..Hermelles",
+  "X..Hydraires",
+  "X..Eponges",
+  "X..Ascidies.Coloniales",
+  "X..Ascidies.Solitaires",
+  "X..Bryozoaires.Dresses",
+  "X..Balanes.Vivantes",
+  #"Commentaires.Avant"                     ,
+  "X..Surface.Accolement",
+  #"Type.sustrat.observé"                   ,
+  #"Commentaires"                           ,
+  "Nb.Cancer.pagurus..Tourteau.",
+  "Nb.Necora.puber..Etrille.",
+  "Nb.Carcinus.maenas..Crabe.vert.",
+  "Nb.Nucella.lapilus..Pourpre.",
+  "Nb.Eriphia.verrucosa..Crabe.verruqueux.",
+  "Nb.Octopus.vulgaris..Poulpe.",
+  "Nb.Galathea..Galathées.",
+  "Nb.Paracentrotus.lividus..Oursin.",
+  "Nb.Lophozozymus.incisus..ancien.Xantho.incisus.",
+  "Nb.Palaemon.sp..Crevette.bouquet.ou.crevette.rose.",
+  "Nb.Haliotis.tuberculata..Ormeau.",
+  "Nb.Stramonita.haemastoma..Pourpre.bouche.de.sang.",
+  "Nb.Littorina.littorea..Bigorneau.",
+  "Nb.Xantho.pilipes..Xanthe.poilu.",
   "Nb.Mimachlamys.varia..Pétoncle.noir."
 )]
 
-par(mfrow = c(2,3))
+par(mfrow = c(2, 3))
 
-sapply(names(hist_[, c(3:ncol(hist_))]), 
-       function(cname){
+sapply(names(hist_[, c(3:ncol(hist_))]),
+       function(cname) {
          print(hist(hist_[, c(3:ncol(hist_))][[cname]], main = "", xlab = cname, ylab = ylab_, breaks = length(unique(hist_[, c(3:ncol(hist_))][[cname]]))))
        })
 
-par(mfrow=c(1, 1))
+par(mfrow = c(1, 1))
 
 dplyr::filter(qecbnew, X..algues.brunes > 100)[, c("Site", "date_fiche", "Type.Bloc", "Numéro.Bloc.échantillon", "Face", "X..algues.brunes")]
 qecbnew$X..algues.brunes <- ifelse(qecbnew$X..algues.brunes > 100, 100, qecbnew$X..algues.brunes)
@@ -569,8 +569,8 @@ rm(qecbnewhist_, ylab_, hist_)
 # I theregore change these NAs by 0
 
 # replace NAs by "0" for variables used in qecb determination
-qecbnew[,c("X..algues.brunes", 
-          "X..algues.rouges", 
+qecbnew[,c("X..algues.brunes",
+          "X..algues.rouges",
           "X..Lithophyllum",
           "X..Cladophora",
           "Nb.Littorina.obtusata",
@@ -586,9 +586,9 @@ qecbnew[,c("X..algues.brunes",
           "Nb.spirorbis.total",
           "X..Balanes.Vivantes",
           "Nb.Spirobranchus.lamarckii.total",
-          "X..Surface.Accolement")] <- lapply(qecbnew[, 
-               c("X..algues.brunes", 
-                 "X..algues.rouges", 
+          "X..Surface.Accolement")] <- lapply(qecbnew[,
+               c("X..algues.brunes",
+                 "X..algues.rouges",
                  "X..Lithophyllum",
                  "X..Cladophora",
                  "Nb.Littorina.obtusata",
@@ -604,14 +604,14 @@ qecbnew[,c("X..algues.brunes",
                  "Nb.spirorbis.total",
                  "X..Balanes.Vivantes",
                  "Nb.Spirobranchus.lamarckii.total",
-                 "X..Surface.Accolement")], 
+                 "X..Surface.Accolement")],
   function(x) replace(x, is.na(x), 0))
 
 # and also replace NA for bivalve by 0 for EGMP and BASQ surveys cfr for accollement correction later on.
 
-qecbnew$X..Mytilus.sp. <- ifelse((substr(qecbnew$Site, 1, 4) %in% c("EGMP", "BASQ")) & is.na(qecbnew$X..Mytilus.sp.), 0, qecbnew$X..Mytilus.sp.) 
-qecbnew$Nb.Crassostrea.gigas <- ifelse((substr(qecbnew$Site, 1, 4) %in% c("EGMP", "BASQ")) & is.na(qecbnew$Nb.Crassostrea.gigas), 0, qecbnew$Nb.Crassostrea.gigas) 
-qecbnew$Nb.Ostrea.edulis <- ifelse((substr(qecbnew$Site, 1, 4) %in% c("EGMP", "BASQ")) & is.na(qecbnew$Nb.Ostrea.edulis), 0, qecbnew$Nb.Ostrea.edulis) 
+qecbnew$X..Mytilus.sp. <- ifelse((substr(qecbnew$Site, 1, 4) %in% c("EGMP", "BASQ")) & is.na(qecbnew$X..Mytilus.sp.), 0, qecbnew$X..Mytilus.sp.)
+qecbnew$Nb.Crassostrea.gigas <- ifelse((substr(qecbnew$Site, 1, 4) %in% c("EGMP", "BASQ")) & is.na(qecbnew$Nb.Crassostrea.gigas), 0, qecbnew$Nb.Crassostrea.gigas)
+qecbnew$Nb.Ostrea.edulis <- ifelse((substr(qecbnew$Site, 1, 4) %in% c("EGMP", "BASQ")) & is.na(qecbnew$Nb.Ostrea.edulis), 0, qecbnew$Nb.Ostrea.edulis)
 
 
 # add a region variable
@@ -623,87 +623,97 @@ qecbnew <- dplyr::arrange(qecbnew, region, site_year_month_day, Type.Bloc, Numé
 
 # accolement function according to recent 'retournement'
 
+## before I go further ahead, I have to correct for surface d'accollement for several variable for BM.FI !! 
+
+# not the same file name between script qecb script (qecbNew) and this script (qecbNew); doesn't matter, only appears here in the first dplyr::filter lines.
+
+qecbnew <- tibble::add_column(qecbnew, terri_ = substr(qecbnew$Site, 1, 4), .after = "Site_bis")
+
+qecbnew$X..Eponges_ini <- qecbnew$X..Eponges
+qecbnew$X..Ascidies.Coloniales_ini <- qecbnew$X..Ascidies.Coloniales
+qecbnew$X..Ascidies.Solitaires_ini <- qecbnew$X..Ascidies.Solitaires
+qecbnew$X..Bryozoaires.Dresses_ini <- qecbnew$X..Bryozoaires.Dresses
+qecbnew$X..Lithophyllum_ini <- qecbnew$X..Lithophyllum
+qecbnew$X..Balanes.Vivantes_ini <- qecbnew$X..Balanes.Vivantes
+
 df_bm_fs <- qecbnew %>% dplyr::filter(Type.Bloc == "Bloc mobile" & Face == "face supérieure")
 df_bm_fi <- qecbnew %>% dplyr::filter(Type.Bloc == "Bloc mobile" & Face == "face inférieure")
-
-df_bm_fi$terri. <- substr(df_bm_fi$Site, 1, 4)
+df_bf <- qecbnew %>% dplyr::filter(Type.Bloc != "Bloc mobile")
 
 `%notin%` <- Negate(`%in%`)
 
-acco_fct <- function(var.) {
+acco_fct <- function(var_) {
 
-  col_accol_$var.cor.acco. <<- NA
-  
+  df_bm_fi$var_cor.acco. <<- NA
+
   for (i in c(1:nrow(df_bm_fi))) {
-    
-    col_accol_$var.cor.acco.[[i]] <<- if (df_bm_fi$terri.[[i]] %notin% c("EGMP", "BASQ")) {
-      ifelse(#df_$Couleur.dominante %in% c("Rouge", "Brune", "Brune-Rouge") || 
-        df_bm_fs$Couleur.dominante[[i]] %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée"), df_bm_fi[i, var.] / (100 - df_bm_fi$X..Surface.Accolement[[i]]) * 100, df_bm_fi[i, var.])
+
+    df_bm_fi$var_cor.acco.[[i]] <<- if (df_bm_fi$terri_[[i]] %notin% c("EGMP", "BASQ")) {
+      ifelse(#df_$Couleur.dominante %in% c("Rouge", "Brune", "Brune-Rouge") ||
+        df_bm_fs$Couleur.dominante[[i]] %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée"), df_bm_fi[i, var_] / (100 - df_bm_fi$X..Surface.Accolement[[i]]) * 100, df_bm_fi[i, var_])
     } else {
-      ifelse(df_bm_fs$Couleur.dominante[[i]] %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée") 
+      ifelse(df_bm_fs$Couleur.dominante[[i]] %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée")
              & df_bm_fi$X..Surface.Accolement[[i]] != 0 # I have to use it in dplyr::filter this time as well for EGMP- BASQ (but not for Bretagne, although could be added, same result); identical/repeated measure for BM.FI and BM.FS
-             & df_bm_fs$X..Mytilus.sp.[[i]] == 0, df_bm_fi[i, var.] / (100 - df_bm_fi$X..Surface.Accolement[[i]]) * 100, df_bm_fi[i, var.])
+             & df_bm_fs$X..Mytilus.sp.[[i]] == 0, df_bm_fi[i, var_] / (100 - df_bm_fi$X..Surface.Accolement[[i]]) * 100, df_bm_fi[i, var_])
     }
-    
+
   }
- 
+
 }
 
 # I would only consider colors in c("Rouge", "Brune", "Brune-Rouge") for BM.FI correction [ and not the series c("Blanche-Brune", "Rouge", "Brune", "Blanche-Rouge", "Brune-Rouge", "Rouge-Verte", "Brune-Verte") ] ; and for BM.FS, the list c("Blanche", "Verte", "Colorée") => we do the correction for BM.FI accollement based on BM.FS color !!!
 
-options(scipen = 0, digits = 2)
 
-col_accol_ <- data.frame(Site = df_bm_fi$Site, site_year_month_day = df_bm_fi$site_year_month_day, Accol. = df_bm_fi$X..Surface.Accolement, Mytilus.BM.FS = df_bm_fs[, "X..Mytilus.sp."], Col.domi.BM.FS = df_bm_fs[, "Couleur.dominante"], Col.domi.BM.FI = df_bm_fi[, "Couleur.dominante"])
+# apply acco_fct to BM.FI variables
 
-col_accol_$X..Eponges.BM.FI.pre. <- df_bm_fi[, "X..Eponges"]
-acco_fct("X..Eponges")
-col_accol_ <- dplyr::rename(col_accol_, X..Eponges.BM.FI.post = var.cor.acco.)
-col_accol_[, "X..Eponges.diff."] <- col_accol_[, "X..Eponges.BM.FI.post"]/col_accol_[, "X..Eponges.BM.FI.pre."]*100-100
-col_accol_[, "X..Eponges.diff."] <- ifelse(is.nan(col_accol_[, "X..Eponges.diff."]), NA, col_accol_[, "X..Eponges.diff."])
+apply_acco_fct <- function(var_) {
+  
+  #var_ <- "X..Eponges"
+  
+  show(sort(df_bm_fi[, var_], decreasing = TRUE, index.return = FALSE)[1:50])
+  pre_ <- as.vector(df_bm_fi[, var_])
+  acco_fct(var_)
+  df_bm_fi <<- tibble::add_column(df_bm_fi, var_cor. = df_bm_fi$var_cor.acco., .after = var_)
+  show(sort(df_bm_fi$var_cor., decreasing = TRUE, index.return = FALSE)[1:50])
+  df_bm_fi$var_cor. <<- as.numeric(ifelse(as.character(df_bm_fi$var_cor.) %in% c(NA, "NaN", "-Inf", "Inf"), "0", as.character(df_bm_fi$var_cor.)))
+  df_bm_fi$var_cor. <<- ifelse(df_bm_fi$var_cor. > 100, 100, df_bm_fi$var_cor.)
+  show(sort(df_bm_fi$var_cor., decreasing = TRUE, index.return = FALSE)[1:50])
+  show(length(na.omit(which(abs(as.vector(df_bm_fi$var_cor.) - pre_) != 0)))/na.omit(length(df_bm_fi$var_cor.))*100)
+  par(mfrow=c(1,3))
+  hist(pre_, main = var_, xlab = "pre-corection")
+  hist(df_bm_fi$var_cor., main = var_, xlab = "post-corection")
+  hist(df_bm_fi[as.vector(which(abs(as.vector(df_bm_fi$var_cor.) - pre_) != 0)), var_], main = var_, xlab = "diff. post-pre != 0")
+  par(mfrow = c(1, 1))
+  df_bm_fi <<- df_bm_fi[ , -which(names(df_bm_fi) %in% c(var_, "var_cor.acco."))]
+  colnames(df_bm_fi)[colnames(df_bm_fi) == "var_cor."] <<- var_
+  
+  rm(pre_)
+  
+}
 
-col_accol_$X..Ascidies.Coloniales.BM.FI.pre. <- df_bm_fi[, "X..Ascidies.Coloniales"]
-acco_fct("X..Ascidies.Coloniales")
-col_accol_ <- dplyr::rename(col_accol_, X..Ascidies.Coloniales.BM.FI.post = var.cor.acco.)
-col_accol_[, "X..Ascidies.Coloniales.diff."] <- col_accol_[, "X..Ascidies.Coloniales.BM.FI.post"]/col_accol_[, "X..Ascidies.Coloniales.BM.FI.pre."]*100-100
-col_accol_[, "X..Ascidies.Coloniales.diff."] <- ifelse(is.nan(col_accol_[, "X..Ascidies.Coloniales.diff."]), NA, col_accol_[, "X..Ascidies.Coloniales.diff."])
+apply_acco_fct("X..Eponges")
+apply_acco_fct("X..Ascidies.Coloniales")
+apply_acco_fct("X..Ascidies.Solitaires")
+apply_acco_fct("X..Bryozoaires.Dresses")
+apply_acco_fct("X..Lithophyllum")
+apply_acco_fct("X..Balanes.Vivantes")
 
-col_accol_$X..Ascidies.Solitaires.BM.FI.pre. <- df_bm_fi[, "X..Ascidies.Solitaires"]
-acco_fct("X..Ascidies.Solitaires")
-col_accol_ <- dplyr::rename(col_accol_, X..Ascidies.Solitaires.BM.FI.post = var.cor.acco.)
-col_accol_[, "X..Ascidies.Solitaires.diff."] <- col_accol_[, "X..Ascidies.Solitaires.BM.FI.post"]/col_accol_[, "X..Ascidies.Solitaires.BM.FI.pre."]*100-100
-col_accol_[, "X..Ascidies.Solitaires.diff."] <- ifelse(is.nan(col_accol_[, "X..Ascidies.Solitaires.diff."]), NA, col_accol_[, "X..Ascidies.Solitaires.diff."])
+qecbnew <- dplyr::bind_rows(df_bm_fs, df_bm_fi)
+qecbnew <- dplyr::bind_rows(qecbnew, df_bf)
 
-col_accol_$X..Bryozoaires.Dresses.BM.FI.pre. <- df_bm_fi[, "X..Bryozoaires.Dresses"]
-acco_fct("X..Bryozoaires.Dresses")
-col_accol_ <- dplyr::rename(col_accol_, X..Bryozoaires.Dresses.BM.FI.post = var.cor.acco.)
-col_accol_[, "X..Bryozoaires.Dresses.diff."] <- col_accol_[, "X..Bryozoaires.Dresses.BM.FI.post"]/col_accol_[, "X..Bryozoaires.Dresses.BM.FI.pre."]*100-100
-col_accol_[, "X..Bryozoaires.Dresses.diff."] <- ifelse(is.nan(col_accol_[, "X..Bryozoaires.Dresses.diff."]), NA, col_accol_[, "X..Bryozoaires.Dresses.diff."])
-
-col_accol_$X..Lithophyllum.BM.FI.pre. <- df_bm_fi[, "X..Lithophyllum"]
-acco_fct("X..Lithophyllum")
-col_accol_ <- dplyr::rename(col_accol_, X..Lithophyllum.BM.FI.post = var.cor.acco.)
-col_accol_[, "X..Lithophyllum.diff."] <- col_accol_[, "X..Lithophyllum.BM.FI.post"]/col_accol_[, "X..Lithophyllum.BM.FI.pre."]*100-100
-col_accol_[, "X..Lithophyllum.diff."] <- ifelse(is.nan(col_accol_[, "X..Lithophyllum.diff."]), NA, col_accol_[, "X..Lithophyllum.diff."])
-
-col_accol_$X..Balanes.Vivantes.BM.FI.pre. <- df_bm_fi[, "X..Balanes.Vivantes"]
-acco_fct("X..Balanes.Vivantes")
-col_accol_ <- dplyr::rename(col_accol_, X..Balanes.Vivantes.BM.FI.post = var.cor.acco.)
-col_accol_[, "X..Balanes.Vivantes.diff."] <- col_accol_[, "X..Balanes.Vivantes.BM.FI.post"]/col_accol_[, "X..Balanes.Vivantes.BM.FI.pre."]*100-100
-col_accol_[, "X..Balanes.Vivantes.diff."] <- ifelse(is.nan(col_accol_[, "X..Balanes.Vivantes.diff."]), NA, col_accol_[, "X..Balanes.Vivantes.diff."])
-
-options(scipen = 0, digits = 7) # default
-
-rm(col_accol_, df_bm_fi, df_bm_fs)
+qecbnew <- dplyr::arrange(qecbnew, region, site_year_month_day, Type.Bloc, Numéro.Bloc.échantillon, Face)
 
 # do remove some more data ...
 # "FINS_Quemenes.2020.10.16", bad encoding, I let know Anna Capietto to make changes => was corrected normally, so unactivate next time I download ESTAMP data
-dplyr::filter(qecbnew, site_year_month_day != "FINS_Quemenes.2020.10.16") -> qecbnew
+qecbnew <- dplyr::filter(qecbnew, site_year_month_day != "FINS_Quemenes.2020.10.16")
 
 # save the final qecbnew df_
 
 saveRDS(qecbnew, "qecbnew.RDS")
-#qecbnew <- readRDS("QECB/qecbnew.RDS")
 
+ecology_input <- qecbnew
+
+write.table(ecology_input, "Valeurs_stat.tabular", row.names = FALSE, quote = FALSE, sep = "\t", dec = ".", fileEncoding = "UTF-8")
 
 ## do calculate QECB values now
 
@@ -713,229 +723,229 @@ qecb_val_qu_list <- vector("list", length(unique(qecbnew$site_year_month_day)))
 qecb_val_list <- vector("list", length(unique(qecbnew$site_year_month_day)))
 
 for (i in c(1:length(unique(qecbnew$site_year_month_day)))) {
-  
+
   qecb_i <- qecbnew  %>% dplyr::filter(site_year_month_day == unique(qecbnew$site_year_month_day)[[i]])
-  
-  (terri. <- unique(substr(qecb_i$Site, 1, 4)))
-  
+
+  (terri_ <- unique(substr(qecb_i$Site, 1, 4)))
+
   nb. <- as.vector(unlist(intersect(dplyr::filter(qecb_i, Type.Bloc == "Bloc mobile" & Face == "face supérieure")["Numéro.Bloc.échantillon"], dplyr::filter(qecb_i, Type.Bloc == "Bloc mobile" & Face == "face inférieure")["Numéro.Bloc.échantillon"])))
-  
+
   bloc_nb <- c(
     paste0("Bloc mobile", " - ", "face supérieure", " - ", nb.), 
     paste0("Bloc mobile", " - ", "face inférieure", " - ", nb.),
     paste0(as.vector(unlist(dplyr::filter(qecb_i, Type.Bloc != "Bloc mobile")["Type.Bloc"])), " - ", as.vector(unlist(dplyr::filter(qecb_i, Type.Bloc != "Bloc mobile")["Face"])), " - ", as.vector(unlist(dplyr::filter(qecb_i, Type.Bloc != "Bloc mobile")["Numéro.Bloc.échantillon"]))) 
   )
-  
+
   qecb_i$Bloc <- paste0(qecb_i$Type.Bloc, " - ", qecb_i$Face, " - ", qecb_i$Numéro.Bloc.échantillon)
-  
+
   qecb_i <- qecb_i %>% subset(Bloc %in% bloc_nb)
-  
+
   {
-    
+
     ## QEBM.1
-    
-    
+
+
     # VFS.BM Bloc mobile
-    
-    qecb_i %>% dplyr::filter(qecb_i$Type.Bloc == "Bloc mobile" & qecb_i$Face == "face supérieure") -> df_bm_fs # to keep a version of it for later on correction for accollement for BM FI
+
+    df_bm_fs <- qecb_i %>% dplyr::filter(qecb_i$Type.Bloc == "Bloc mobile" & qecb_i$Face == "face supérieure") # to keep a version of it for later on correction for accollement for BM FI
     df_ <- df_bm_fs
     df_ <- dplyr::arrange(df_, Numéro.Bloc.échantillon)
-    
+
     a_bms <- df_$X..algues.brunes + df_$X..algues.rouges + df_$X..Cladophora
     b_bms <-  df_$X..Lithophyllum
     c_bms <- df_$Nb.Littorina.obtusata + df_$Nb.Gibbula.cineraria + df_$Nb.Gibbula.pennanti + df_$Nb.Gibbula.umbilicalis
     d_bms <- df_$X..Eponges + df_$X..Ascidies.Coloniales + df_$X..Ascidies.Solitaires + df_$X..Bryozoaires.Dresses
     e_bms <- df_$X..algues.vertes
     f_bms <- df_$X..Roche.Nue
-    
-    (  (df_$X..algues.brunes + df_$X..algues.rouges + df_$X..Cladophora)
+
+    ((df_$X..algues.brunes + df_$X..algues.rouges + df_$X..Cladophora)
       +  df_$X..Lithophyllum
       + (df_$Nb.Littorina.obtusata + df_$Nb.Gibbula.cineraria + df_$Nb.Gibbula.pennanti + df_$Nb.Gibbula.umbilicalis)
       + (df_$X..Eponges + df_$X..Ascidies.Coloniales + df_$X..Ascidies.Solitaires + df_$X..Bryozoaires.Dresses)
-    ) - 
-      (   df_$X..algues.vertes
+    ) -
+      (df_$X..algues.vertes
           +  df_$X..Roche.Nue
       ) -> VFS.BM
     VFS.BM  
-    
-    
-    # VFI.BM Bloc mobile         
-    
-    qecb_i %>% dplyr::filter(Type.Bloc == "Bloc mobile" & Face == "face inférieure") -> df_
+
+
+    # VFI.BM Bloc mobile
+
+    df_ <- qecb_i %>% dplyr::filter(Type.Bloc == "Bloc mobile" & Face == "face inférieure")
     df_ <- dplyr::arrange(df_, Numéro.Bloc.échantillon)
-    
+
     df_bm_fi <- df_
-    
+
     # accolement function according to recent 'retournement'
-    
+
     `%notin%` <- Negate(`%in%`)
-    
-    acco_fct <- function(var.) {
-      
-      if (terri. %notin% c("EGMP", "BASQ")) {
-        ifelse(#df_$Couleur.dominante %in% c("Rouge", "Brune", "Brune-Rouge") || 
-          df_bm_fs$Couleur.dominante %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée") , df_bm_fi[, var.] / (100 - df_bm_fi$X..Surface.Accolement) * 100, df_bm_fi[, var.])
+
+    acco_fct <- function(var_) {
+
+      if (terri_ %notin% c("EGMP", "BASQ")) {
+        ifelse(#df_$Couleur.dominante %in% c("Rouge", "Brune", "Brune-Rouge") ||
+          df_bm_fs$Couleur.dominante %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée"), df_bm_fi[, var_] / (100 - df_bm_fi$X..Surface.Accolement) * 100, df_bm_fi[, var_])
       } else {
-        ifelse(df_bm_fs$Couleur.dominante %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée") 
+        ifelse(df_bm_fs$Couleur.dominante %in% c("Blanche", "Verte", "Blanche-Verte", "Colorée")
                & df_bm_fi$X..Surface.Accolement != 0 # I have to use it in dplyr::filter this time as well for EGMP- BASQ (but not for Bretagne, altough could be added, same result); identical/repeated measure for BM.FI and BM.FS
-               & df_bm_fs$X..Mytilus.sp. == 0, df_bm_fi[, var.] / (100 - df_bm_fi$X..Surface.Accolement) * 100, df_bm_fi[, var.])
+               & df_bm_fs$X..Mytilus.sp. == 0, df_bm_fi[, var_] / (100 - df_bm_fi$X..Surface.Accolement) * 100, df_bm_fi[, var_])
       }
-      
+
     }
-      
+
     # I would only consider colors in c("Rouge", "Brune", "Brune-Rouge") for BM.FI correction [ and not the series c("Blanche-Brune", "Rouge", "Brune", "Blanche-Rouge", "Brune-Rouge", "Rouge-Verte", "Brune-Verte") ] ; and for BM.FS, the list c("Blanche", "Verte", "Colorée") => we do the correction for BM.FI accollement based on BM.FS color !!!
-    
+
     df_bm_fs$Couleur.dominante 
     df_bm_fs$X..Mytilus.sp.
-    
+
     df_[, "X..Eponges"] ; df_[, "X..Surface.Accolement"]
     df_[, "X..Eponges"] <- acco_fct("X..Eponges")
     df_[, "X..Eponges"] <- as.numeric(ifelse(as.character(df_[, "X..Eponges"]) %in% c(NA, "NaN", "-Inf", "Inf"), "0", as.character(df_[, "X..Eponges"])))
     df_[, "X..Eponges"] <- ifelse(df_[, "X..Eponges"] > 100, 100, df_[, "X..Eponges"])
     df_[, "X..Eponges"]
-    
+
     df_[, "X..Ascidies.Coloniales"] ; df_[, "X..Surface.Accolement"]
     df_[, "X..Ascidies.Coloniales"] <- acco_fct("X..Ascidies.Coloniales")
     df_[, "X..Ascidies.Coloniales"] <- as.numeric(ifelse(as.character(df_[, "X..Ascidies.Coloniales"]) %in% c(NA, "NaN", "-Inf", "Inf"), "0", as.character(df_[, "X..Ascidies.Coloniales"])))
     df_[, "X..Ascidies.Coloniales"] <- ifelse(df_[, "X..Ascidies.Coloniales"] > 100, 100, df_[, "X..Ascidies.Coloniales"])
     df_[, "X..Ascidies.Coloniales"]
-    
+
     df_[, "X..Ascidies.Solitaires"] ; df_[, "X..Surface.Accolement"]
     df_[, "X..Ascidies.Solitaires"] <- acco_fct("X..Ascidies.Solitaires")
     df_[, "X..Ascidies.Solitaires"] <- as.numeric(ifelse(as.character(df_[, "X..Ascidies.Solitaires"]) %in% c(NA, "NaN", "-Inf", "Inf"), "0", as.character(df_[, "X..Ascidies.Solitaires"])))
     df_[, "X..Ascidies.Solitaires"] <- ifelse(df_[, "X..Ascidies.Solitaires"] > 100, 100, df_[, "X..Ascidies.Solitaires"])
     df_[, "X..Ascidies.Solitaires"] 
-    
+
     df_[, "X..Bryozoaires.Dresses"] ; df_[, "X..Surface.Accolement"]
     df_[, "X..Bryozoaires.Dresses"] <- acco_fct("X..Bryozoaires.Dresses")
     df_[, "X..Bryozoaires.Dresses"] <- as.numeric(ifelse(as.character(df_[, "X..Bryozoaires.Dresses"]) %in% c(NA, "NaN", "-Inf", "Inf"), "0", as.character(df_[, "X..Bryozoaires.Dresses"])))
     df_[, "X..Bryozoaires.Dresses"] <- ifelse(df_[, "X..Bryozoaires.Dresses"] > 100, 100, df_[, "X..Bryozoaires.Dresses"])
     df_[, "X..Bryozoaires.Dresses"]
-    
+
     df_[, "X..Lithophyllum"] ; df_[, "X..Surface.Accolement"]
     df_[, "X..Lithophyllum"] <- acco_fct("X..Lithophyllum")
     df_[, "X..Lithophyllum"] <- as.numeric(ifelse(as.character(df_[, "X..Lithophyllum"]) %in% c(NA, "NaN", "-Inf", "Inf"), "0", as.character(df_[, "X..Lithophyllum"])))
     df_[, "X..Lithophyllum"] <- ifelse(df_[, "X..Lithophyllum"] > 100, 100, df_[, "X..Lithophyllum"])
     df_[, "X..Lithophyllum"]
-    
+
     d_bmi <- df_$X..Eponges + df_$X..Ascidies.Coloniales + df_$X..Ascidies.Solitaires + df_$X..Bryozoaires.Dresses 
     b_bmi <- df_$X..Lithophyllum
     a_bmi <- df_$X..algues.brunes + df_$X..algues.rouges + df_$X..Cladophora
     c_bmi <- df_$Nb.Littorina.obtusata + df_$Nb.Gibbula.cineraria + df_$Nb.Gibbula.pennanti + df_$Nb.Gibbula.umbilicalis
     e_bmi <- df_$X..algues.vertes
     f_bmi <- df_$X..Roche.Nue
-    
-    (  ( df_$X..Eponges + df_$X..Ascidies.Coloniales + df_$X..Ascidies.Solitaires + df_$X..Bryozoaires.Dresses )
-      +  df_$X..Lithophyllum 
-    ) - 
-      (  (df_$X..algues.brunes + df_$X..algues.rouges + df_$X..Cladophora)
+
+    (( df_$X..Eponges + df_$X..Ascidies.Coloniales + df_$X..Ascidies.Solitaires + df_$X..Bryozoaires.Dresses)
+      +  df_$X..Lithophyllum
+    ) -
+      ((df_$X..algues.brunes + df_$X..algues.rouges + df_$X..Cladophora)
          + (df_$Nb.Littorina.obtusata + df_$Nb.Gibbula.cineraria + df_$Nb.Gibbula.pennanti + df_$Nb.Gibbula.umbilicalis)
          +  df_$X..algues.vertes
          +  df_$X..Roche.Nue
-      ) -> VFI.BM            
+      ) -> VFI.BM
     VFI.BM
-    
-    # VFSI.BM Bloc mobile
-    
+
+    # vfsi_bm Bloc mobile
+
     df_ <- qecb_i %>% dplyr::filter(Type.Bloc == "Bloc mobile")
     df_ <- dplyr::arrange(df_, desc(Face), Numéro.Bloc.échantillon)
     num_bloc <- as.vector(sort(unique(df_$Numéro.Bloc.échantillon)))
-    
+
     g_bmsi <- NA
     h_bmsi <- NA
     l_bmsi <- NA
-    
+
     df_bm_fs <- dplyr::filter(df_, Face == "face inférieure")
     df_bm_fi <- dplyr::filter(df_, Face == "face inférieure") 
-    
+
     df_bm_fs$Couleur.dominante 
     df_bm_fs$X..Mytilus.sp.
-    
+
     df_[, "X..Balanes.Vivantes"] ; df_[, "X..Surface.Accolement"]
     df_ <- dplyr::mutate(df_, row.nb = dplyr::row_number())
     dplyr::filter(df_, Face == "face inférieure")["row.nb"]
-    df_[c(dplyr::filter(df_, Face == "face inférieure")[1, "row.nb"]:unlist(tail(dplyr::filter(df_, Face == "face inférieure"), n=1)["row.nb"])), "X..Balanes.Vivantes"] <- acco_fct("X..Balanes.Vivantes")
+    df_[c(dplyr::filter(df_, Face == "face inférieure")[1, "row.nb"]:unlist(tail(dplyr::filter(df_, Face == "face inférieure"), n = 1)["row.nb"])), "X..Balanes.Vivantes"] <- acco_fct("X..Balanes.Vivantes")
     df_[, "X..Balanes.Vivantes"] <- as.numeric(ifelse(as.character(df_[, "X..Balanes.Vivantes"]) %in% c(NA, "NaN", "-Inf", "Inf"), "0", as.character(df_[, "X..Balanes.Vivantes"])))
     df_[, "X..Balanes.Vivantes"] <- ifelse(df_[, "X..Balanes.Vivantes"] > 100, 100, df_[, "X..Balanes.Vivantes"])
     df_[, "X..Balanes.Vivantes"]
-    
+
     for (k in c(1:length(na.omit(num_bloc)))) {
-      
-      j. <- num_bloc[k]
-      
-      GIn. <- unname(unlist(
-        (dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face supérieure")["Nb.spirorbis.total"]
-         + dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face inférieure")["Nb.spirorbis.total"]
+
+      j_ <- num_bloc[k]
+
+      gin_ <- unname(unlist(
+        (dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face supérieure")["Nb.spirorbis.total"]
+         + dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face inférieure")["Nb.spirorbis.total"]
         ) / 1000 ))
-      
-      g_bmsi <<- c(g_bmsi, GIn.)
-      
-      HIn. <- unname(unlist(  
-        (dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face supérieure")["X..Balanes.Vivantes"]
-         + dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face inférieure")["X..Balanes.Vivantes"] 
+
+      g_bmsi <<- c(g_bmsi, gin_)
+
+      hin_ <- unname(unlist(
+        (dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face supérieure")["X..Balanes.Vivantes"]
+         + dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face inférieure")["X..Balanes.Vivantes"] 
         ) / 100 ))
-      
-      h_bmsi <<- c(h_bmsi, HIn.)
-      
-      LIn. <- unname(unlist(    
-        (dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face supérieure")["Nb.Spirobranchus.lamarckii.total"]
-         + dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face inférieure")["Nb.Spirobranchus.lamarckii.total"]
+
+      h_bmsi <<- c(h_bmsi, hin_)
+
+      lin_ <- unname(unlist(
+        (dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face supérieure")["Nb.Spirobranchus.lamarckii.total"]
+         + dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face inférieure")["Nb.Spirobranchus.lamarckii.total"]
         ) / 100 ))
-      
-      l_bmsi <<- c(l_bmsi, LIn.) # To avoid error message "Error in I <<- c(I, IIn.) : cannot change value of locked binding for 'I'"
-      
+
+      l_bmsi <<- c(l_bmsi, lin_) # To avoid error message "Error in I <<- c(I, IIn.) : cannot change value of locked binding for 'I'"
+
     }
-    
+
     g_bmsi <- g_bmsi[2:length(g_bmsi)]
     g_bmsi
     h_bmsi <- h_bmsi[2:length(h_bmsi)]
     h_bmsi
     i_bmsi <- l_bmsi[2:length(l_bmsi)]
     i_bmsi
-    
-    VFSI.BM <- NA  
-    
+
+    vfsi_bm <- NA
+
     for (k in c(1:length(na.omit(num_bloc)))) {
-      
-      j. <- num_bloc[k]
-      
-      VFSIn. <- unname(unlist(
-        ( (dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face supérieure")["Nb.spirorbis.total"]
-           + dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face inférieure")["Nb.spirorbis.total"]
-        ) / 1000 )
+
+      j_ <- num_bloc[k]
+
+      vfsin_ <- unname(unlist(
+        ((dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face supérieure")["Nb.spirorbis.total"]
+           + dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face inférieure")["Nb.spirorbis.total"]
+        ) / 1000)
         -
-          ( 
-            ( (dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face supérieure")["X..Balanes.Vivantes"]
-               + dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face inférieure")["X..Balanes.Vivantes"]
-            ) / 100 )
-            + ( (dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face supérieure")["Nb.Spirobranchus.lamarckii.total"]
-                 + dplyr::filter(df_, Numéro.Bloc.échantillon == j. & Face == "face inférieure")["Nb.Spirobranchus.lamarckii.total"]
-            ) / 100 )
+          (
+            ((dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face supérieure")["X..Balanes.Vivantes"]
+               + dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face inférieure")["X..Balanes.Vivantes"]
+            ) / 100)
+            + ((dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face supérieure")["Nb.Spirobranchus.lamarckii.total"]
+                 + dplyr::filter(df_, Numéro.Bloc.échantillon == j_ & Face == "face inférieure")["Nb.Spirobranchus.lamarckii.total"]
+            ) / 100)
           )
       ))
-      
-      VFSI.BM <<- c(VFSI.BM, VFSIn.)
-      
+
+      vfsi_bm <<- c(vfsi_bm, vfsin_)
+
     }
-    
-    VFSI.BM <- VFSI.BM[2:length(VFSI.BM)]
-    VFSI.BM
-    
-    
+
+    vfsi_bm <- vfsi_bm[2:length(vfsi_bm)]
+    vfsi_bm
+
+
     # QEBM.1
-    
-    (QEBM.1 <- VFS.BM + VFI.BM + VFSI.BM)
-    
-    
-    
-    ## QEBM.2 
-    
-    
+
+    (QEBM.1 <- VFS.BM + VFI.BM + vfsi_bm)
+
+
+
+    ## QEBM.2
+
+
     # VrFS.BF moyenne Bloc fixé ; = VDRmoyenne in excel file
-    
+
     qecb_i %>% dplyr::filter(Type.Bloc %in% c("Bloc fixé", "Roche en place")) -> df_
     df_ <- dplyr::arrange(df_, Numéro.Bloc.échantillon)
-    
+
     a_bf <- df_$X..algues.brunes + df_$X..algues.rouges + df_$X..Cladophora
     b_bf <- df_$X..Lithophyllum
     c_bf <- df_$Nb.Littorina.obtusata + df_$Nb.Gibbula.cineraria + df_$Nb.Gibbula.pennanti + df_$Nb.Gibbula.umbilicalis
@@ -1068,7 +1078,7 @@ for (i in c(1:length(unique(qecbnew$site_year_month_day)))) {
     i_bms,
     VFS.BM,
     VFI.BM,
-    VFSI.BM,
+    vfsi_bm,
     QEBM.1,
     VrFS.BF,
     `(G - (H + I))S.BM`,
@@ -1087,7 +1097,7 @@ for (i in c(1:length(unique(qecbnew$site_year_month_day)))) {
   
   rm(qecb_i)
   rm(df_bm_fs, df_bm_fi)
-  rm("(G - (H + I))BF", "(G - (H + I))S.BM", "||VrFS.BM.moy/VrFS.BF.moy||", "a_bf", "a_bmi", "a_bms", "b_bf", "b_bmi", "b_bms", "bloc_nb", "c_bf", "c_bmi", "c_bms", "d_bf", "d_bmi", "d_bms", "e_bf", "e_bmi", "e_bms", "f_bf", "f_bmi", "f_bms", "g_bf", "g_bms", "g_bmsi", "GIn.", "h_bf", "h_bms", "h_bmsi", "HIn.", "i", "i_bf", "i_bms", "i_bmsi", "j.", "k", "l_bmsi", "LIn.", "nb.", "num_bloc", "QEBM.1", "QEBM.2", "QECB", "VFI.BM", "VFS.BM", "VFSI.BM", "VFSIn.", "VrFS.BF", "VrFS.BF.moy", "VrFS.BM", "VrFS.BM.moy", "terri.")     
+  rm("(G - (H + I))BF", "(G - (H + I))S.BM", "||VrFS.BM.moy/VrFS.BF.moy||", "a_bf", "a_bmi", "a_bms", "b_bf", "b_bmi", "b_bms", "bloc_nb", "c_bf", "c_bmi", "c_bms", "d_bf", "d_bmi", "d_bms", "e_bf", "e_bmi", "e_bms", "f_bf", "f_bmi", "f_bms", "g_bf", "g_bms", "g_bmsi", "gin_", "h_bf", "h_bms", "h_bmsi", "hin_", "i", "i_bf", "i_bms", "i_bmsi", "j_", "k", "l_bmsi", "lin_", "nb.", "num_bloc", "QEBM.1", "QEBM.2", "QECB", "VFI.BM", "VFS.BM", "vfsi_bm", "vfsin_", "VrFS.BF", "VrFS.BF.moy", "VrFS.BM", "VrFS.BM.moy", "terri_")     
   
 }
 
@@ -1211,14 +1221,15 @@ saveRDS(qecb_val_qu_, "qecb_val_qu.RDS")
 ## Plots qecb
 
 qecb_val_qu_nan <- qecb_val_qu_
+qecb_val_qu_stat_nan <- qecb_val_qu_stat_
 
 `%notin%` <- Negate(`%in%`)
-qecb_val_qu_stat_nan <- qecb_val_qu_stat_
+
+qecb_val_qu_nan$QEBM.2 <- ifelse(qecb_val_qu_nan$QEBM.2 %in% c("-Inf", "NaN"), NA, qecb_val_qu_nan$QEBM.2)
+
 qecb_val_qu_stat_nan[, c("qecb.moy", "qecb.et", "qecb.med", "qecb.min", "qecb.max")] <- ifelse(qecb_val_qu_stat_nan[, c("qecb.moy", "qecb.et", "qecb.med", "qecb.min", "qecb.max")] %in% c("-Inf", "NaN"), NA, qecb_val_qu_stat_nan[, c("qecb.moy", "qecb.et", "qecb.med", "qecb.min", "qecb.max")])
 
-write.table(qecb_val_qu_stat_nan, "Valeurs_stat.tabular", row.names = FALSE, quote = FALSE, sep = "\t", dec = ".", fileEncoding = "UTF-8")
 
-par(mfrow = c(1, 1))
 
 for (i in c(1:length(unique(qecb_val_qu_stat_nan$Site)))) {
   
@@ -1259,7 +1270,7 @@ two <- round(mean(unlist(dplyr::filter(dt_bis, QEBM.2 > quantile(dt_bis$QEBM.2, 
 three <- round(mean(unlist(dplyr::filter(dt_bis, QEBM.2 > quantile(dt_bis$QEBM.2, 0.5, na.rm = TRUE) & QEBM.2 <= quantile(dt_bis$QEBM.2, 0.75, na.rm = TRUE))["QEBM.2"])), digits = 0)
 four <- round(mean(unlist(dplyr::filter(dt_bis, QEBM.2 > quantile(dt_bis$QEBM.2, 0.75, na.rm = TRUE))["QEBM.2"])), digits = 0)
 
-par(mfrow = c(1, 1))
+
 # I have unactivated the model line drawing because aberant for some sites with bad qecb values
 for (i in c(1:length(unique(qecb_val_qu_stat_nan$Site)))) {
   
@@ -1291,8 +1302,16 @@ for (i in c(1:length(unique(qecb_val_qu_stat_nan$Site)))) {
   arrows(df1$Date, df1$qecb.med, df1$Date, df1$qecb.min, code = 3, angle = 90, length = 0.00)
   
 }
-
 rm(df1, dt_, dt_bis, four, i, one, three, two, xmax_, xmin_, ymax_, ymin_)
+args <- commandArgs(trailingOnly = TRUE)
 
-#report <- args[5]
-#loop_file <- source(args[6])
+#####Import data
+
+if (length(args) < 1) {
+    stop("This tool needs at least 1 argument")
+}else {
+    report <- args[5]
+    loop_file <- source(args[6])
+
+}
+
