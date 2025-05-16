@@ -15,9 +15,13 @@
         mkdir -p '/runtime/data-out/' &&
         mkdir -p ./outputs &&
 
-        cp '$input_raw' '/runtime/data-in-raw/${input_raw.element_identifier}' &&
-        #if $input_ref:            
-            cp '$input_ref' '/runtime/data-in-ref/${input_ref.element_identifier}' &&
+	#for $i, $infile in enumerate($input_raw):
+        	cp '$infile' '/runtime/data-in-raw/${infile.element_identifier}_${i}.nc' &&
+        #end for	
+        #if $input_ref:
+            #for $i, $infile in enumerate($input_ref):            
+            	cp '$infile' '/runtime/data-in-ref/${infile.element_identifier}_${i}' &&
+            #end for
         #end if
         
         #if $config.type == 'yes':
@@ -48,8 +52,8 @@
         </configfile>
     </configfiles>
     <inputs>
-        <param name="input_raw" type="data" format="netcdf" label="Input raw data"/>
-        <param name="input_ref" type="data" format="netcdf" optional="true" label="Input reference data"/>
+        <param name="input_raw" type="data" format="netcdf" multiple="true" label="Input raw data"/>
+        <param name="input_ref" type="data" format="netcdf" optional="true" multiple="true" label="Input reference data"/>
         <conditional name="config">
             <param name="type" type="select" label="Select if you want to write your own configuration file or not.">   
                 <option value="no">No, I don't want to, I'll use the default one</option>
@@ -128,7 +132,6 @@ ODV collection manager
 This tool present two type of actions :
 
     - qualificiation & validation : the tool merges various datasets with a common vocabulary and creates a single generic ODV spreadsheet following ODV user’s guide (v5.7.0) in an automatic way.
-    - history : the tool report in the input file the ODV history including the change of QC flag (not yet operational)
 
 **Input description**
 
